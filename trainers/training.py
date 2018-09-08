@@ -1,8 +1,9 @@
 import torch.optim as optim
 import torch.nn as nn 
 import torch.utils.data as data
+import sklearn.manifold as manifold
 
-def train(model, dataset, num_epochs, batch_size):
+def train(model, dataset, num_epochs = 100, batch_size = 32, lr = 1e-2):
     # Data loader
     loader = data.DataLoader(dataset, batch_size = batch_size)
 
@@ -10,7 +11,7 @@ def train(model, dataset, num_epochs, batch_size):
     loss_fn = nn.CrossEntropyLoss()
 
     # Optimization algorithm used to minimize the loss function
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), lr = 1e-2)
 
     losses = []
     for epoch in range(num_epochs):
@@ -37,6 +38,7 @@ def train(model, dataset, num_epochs, batch_size):
             break
         print(f'Epoch: {epoch} Loss: {total_loss}')
         losses.append(total_loss)
+
 
     return losses
 

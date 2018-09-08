@@ -7,14 +7,16 @@ from os import path
 import string
 import pickle
 
+FEDERALIST_PAPERS_TXT = 'data/federalist_papers.txt'
 PATH = 'federalist_papers.pkl'
+VOCABULARY = 'data/vocabulary.pkl'
+WINDOWS = 'data/windows.pkl'
 
 class FederalistPapers(data.Dataset):
-    def __init__(self):
+    def __init__(self, articles=[0,1]):
         with open(PATH, 'rb') as fid:
             data = pickle.load(fid)
-        article_list = data['articles']
-
+        article_list = data['articles'][0:2]
         self.word2id, self.id2word = get_vocabulary(article_list)        
         contexts, centers = get_training_data(article_list, self.word2id)
 
@@ -114,9 +116,8 @@ def get_training_data(article_list, word2id):
     return contexts, centers
 
 def fetch_federalist_papers():
-    doc_path = 'federalist_papers.txt'
     # Check if file already exists in cache
-    if not path.isfile(doc_path): 
+    if not path.isfile(FEDERALIST_PAPERS_TXT): 
         # If it isn't, pull it down and write it to a specific file
         response = requests.get('http://www.gutenberg.org/cache/epub/18/pg18.txt')
         with open(doc_path,'w') as fid:

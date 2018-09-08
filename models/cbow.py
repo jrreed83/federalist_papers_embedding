@@ -28,3 +28,6 @@ class CBOW(nn.Module):
         outputs = self.linear(avg_embedding)
 
         return outputs 
+
+    def get_embedding_weights(self):
+        return self.embedding.weight.detach().numpy()
