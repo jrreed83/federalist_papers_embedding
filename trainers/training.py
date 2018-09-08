@@ -10,7 +10,7 @@ def train(model, dataset, num_epochs, batch_size):
     loss_fn = nn.CrossEntropyLoss()
 
     # Optimization algorithm used to minimize the loss function
-    optimizer = optim.Adam(model.params())
+    optimizer = optim.Adam(model.parameters())
 
     losses = []
     for epoch in range(num_epochs):
@@ -28,13 +28,13 @@ def train(model, dataset, num_epochs, batch_size):
 
             loss = loss_fn(preds, targets)
 
-            total_loss += loss
+            total_loss += loss.item()
             # Back propagation algorithm
-            loss_fn.backward() 
+            loss.backward() 
 
             # Take a step in the weights/ biases
             optimizer.step()
-        
+            break
         print(f'Epoch: {epoch} Loss: {total_loss}')
         losses.append(total_loss)
 

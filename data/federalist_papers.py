@@ -82,7 +82,7 @@ def get_windows(words, win_size=None):
     '''
     The input words array 
     '''
-    center_id = int(win_size / 2)
+    #center_id = int(win_size / 2)
     windows = []
     for k in range(2, len(words)-2):
         window = [words[k-2], words[k-1], words[k], words[k+1], words[k+2]]
