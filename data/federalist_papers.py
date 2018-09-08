@@ -7,7 +7,7 @@ from os import path
 import string
 import pickle
 
-PATH = 'federalist_papers.txt'
+PATH = 'federalist_papers.pkl'
 
 class FederalistPapers(data.Dataset):
     def __init__(self):
@@ -180,4 +180,6 @@ def fetch_federalist_papers():
                         state = start_state
                     else:
                         content.append(line)
-    return data
+
+        with open(PATH, 'wb') as fid:
+            pickle.dump(data, fid)
