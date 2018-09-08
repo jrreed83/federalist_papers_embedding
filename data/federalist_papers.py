@@ -11,9 +11,15 @@ PATH = 'federalist_papers.txt'
 
 class FederalistPapers(data.Dataset):
     def __init__(self):
-        contexts, centers = get_training_data()
+        with open(PATH, 'rb') as fid:
+            data = pickle.load(fid)
+        article_list = data['articles']
+
+        self.word2id, self.id2word = get_vocabulary(article_list)        
+        contexts, centers = get_training_data(article_list, self.word2id)
+
         self.contexts, self.centers = contexts, centers
-        self.word2id, self.id2word = get_vocabulary()
+
     def __len__(self):
         return len(self.centers)
     def __getitem__(self, i):
@@ -38,20 +44,20 @@ def process_article(article):
     # Based on the previous remarks, remove any empty strings and numeric
     # strings by keeping only those words that are alphabetic and have a length
     # greater than 0.
-    words = [w for w in words if w.len() > 0 and w.isalpha()]
+    words = [w for w in words if len(w) > 0 and w.isalpha()]
     
     # Convert to a list for easy processing
     return list(words)
 
-def word_frequencies(articles):
+def word_frequencies(article_list):
     '''
     Iterate over all articles, aggregating the vocabulary as we go
     '''
     histogram = {}
-    for a in articles:
+    for article in article_list:
         
         # Get a list of words for the article
-        words = process_article(a)
+        words = process_article(article)
         
         # Grab the article vocabulary
         for word in words:
@@ -61,20 +67,22 @@ def word_frequencies(articles):
                 histogram[word] += 1
     return histogram
 
-
-def get_vocabulary(histogram):
+def get_vocabulary(article_list):
     '''
     Iterate over all articles, aggregating the vocabulary as we go
     '''
-    vocabulary = []
-    for word, count in histogram.items():
-        vocabulary.append(word)
-    return vocabulary    
+    histogram = word_frequencies(article_list)
+    words = [w for w in histogram]
+    word2id = {w:i for i, w in enumerate(words)}
+    id2word = {i:w for i, w in enumerate(words)}
+    
+    return word2id, id2word
 
-def article_windows(words):
+def get_windows(words, win_size=None):
     '''
     The input words array 
     '''
+    center_id = int(win_size / 2)
     windows = []
     for k in range(2, len(words)-2):
         window = [words[k-2], words[k-1], words[k], words[k+1], words[k+2]]
@@ -83,17 +91,17 @@ def article_windows(words):
         windows.append((context, center))
     return windows
 
-def get_training_data():
-    # Fetch the articles of confederation
-    with open(path, 'rb') as fid:
-        data = pickle.load(fid)
+def get_training_data(article_list, word2id):
 
-    for article in data['articles']:
+    for article in article_list:
         # Convert each article to a list of preprocessed words
         words = process_article(article)
-            
+
+        # Convert words to ids based on vocabulary 
+        word_ids = [word2id[w] for w in words]
+
         # Get the windows for this particular article
-        windows = get_windows(words)
+        windows = get_windows(word_ids)
             
         # Write the context windows to a file, note that
         # the center word comes last
