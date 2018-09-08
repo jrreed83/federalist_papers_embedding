@@ -1,11 +1,13 @@
-from models import cbow
-from trainers import training
-from data import federalist_papers
+import models.cbow as cbow 
+import trainers.training as training
+import data.federalist_papers as fed
+
+import matplotlib.pyplot as  plt 
 
 def main():
     # Grab the dataset
     print('Building the Dataset')
-    dataset = federalist_papers.FederalistPapers()
+    dataset = fed.FederalistPapers()
     vocab_size = len(dataset.word2id) 
 
     # Build the model
@@ -15,7 +17,10 @@ def main():
     # Train the model
     print('Training')
     train = training.train
-    train(model=model, dataset=dataset, num_epochs=500, batch_size=32)
+    losses = train(model=model, dataset=dataset, num_epochs=500, batch_size=512)
+
+    plt.plot(losses)
+    plt.show()
 
 if __name__ == '__main__':
     main()

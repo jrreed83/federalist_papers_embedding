@@ -38,6 +38,8 @@ def train(model, dataset, num_epochs, batch_size):
         print(f'Epoch: {epoch} Loss: {total_loss}')
         losses.append(total_loss)
 
+    return losses
+
 
 
 
