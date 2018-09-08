@@ -112,3 +112,72 @@ def get_training_data(article_list, word2id):
             contexts.append(context)
             centers.append(center)
     return contexts, centers
+
+def fetch_federalist_papers():
+    doc_path = 'federalist_papers.txt'
+    # Check if file already exists in cache
+    if not path.isfile(doc_path): 
+        # If it isn't, pull it down and write it to a specific file
+        response = requests.get('http://www.gutenberg.org/cache/epub/18/pg18.txt')
+        with open(doc_path,'w') as fid:
+            fid.write(response.text)            
+    
+    # Define various states
+    start_state = 0
+    author_state = 1
+    greeting_state = 2
+    content_state = 3
+
+    # And declare the initial state
+    state = start_state
+
+    # The possible author names
+    author_names = ['JAY', 'HAMILTON', 'MADISON', 'HAMILTON OR MADISON', 'HAMILTON AND MADISON']
+    
+    greeting = 'To the People of the State of New York'
+    pattern = re.compile('FEDERALIST(\s+|.\s+)No.\s+(\d+)')
+
+    # Data structure we are building
+    data = {
+        'author_name': [],
+        'author_id': [],
+        'article_id': [],
+        'articles': []
+    }
+    
+    content = []
+    
+    with open(doc_path,'r') as fid:
+        for l in fid:    
+            # Strip away white space
+            line = l.strip()
+
+            # Only process non-empty lines
+            if len(line) > 0:
+                if state == start_state:
+                    # Looking the meta-data associated with the article
+                    m = pattern.match(line)
+                    if m is not None:
+                        article_number = m.group(2)
+                        data['article_id'].append(article_number)
+                        state = author_state
+                elif state == author_state:
+                    # Looking for the author name
+                    if line in author_names:
+                        author = line
+                        author_id = author_names.index(author)
+                        data['author_name'].append(line)
+                        data['author_id'].append(author_id)
+                        state = greeting_state
+                elif state == greeting_state:
+                    # Looking for the greeting, this is the same for each article
+                    if greeting in line:
+                        state = content_state
+                elif state == content_state:
+                    if 'PUBLIUS' in line:
+                        data['articles'].append(' '.join(content))
+                        temp = []
+                        state = start_state
+                    else:
+                        content.append(line)
+    return data
