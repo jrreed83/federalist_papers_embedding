@@ -10,6 +10,7 @@ def main():
     print('Fetching the Dataset')
     dataset = d.FederalistPapers()
     vocab_size = len(dataset.word2id)  
+
     # Build the model
     print('Initializing the model')
     model = cbow.CBOW(vocab_size = vocab_size, embedding_dim = 50)
@@ -23,15 +24,19 @@ def main():
     plt.show()
 
     X = model.get_embedding_weights()
-    Y = manifold.TSNE(n_components=2).fit_transform(X) 
-    Y = Y[:100]
-    a = [x for x, y in Y]
-    b = [y for x, y in Y]
 
-    fig, ax = plt.subplots()
-    ax.scatter(a, b)
-    for i in range(len(Y)):
-        ax.annotate(dataset.id2word[i], (a[i], b[i]))
-    plt.show()
+    states = dataset.word2id['states']
+    constitution = dataset.word2id['constitution']
+    Y = manifold.TSNE(n_components=2).fit_transform(X)
+ 
+    #Y = Y[:100]
+    #a = [x for x, y in Y]
+    #b = [y for x, y in Y]
+
+    #fig, ax = plt.subplots()
+    #ax.scatter(a, b)
+    #for i in range(len(Y)):
+    #    ax.annotate(dataset.id2word[i], (a[i], b[i]))
+    #plt.show()
 if __name__ == '__main__':
     main()

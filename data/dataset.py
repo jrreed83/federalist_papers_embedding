@@ -16,7 +16,7 @@ class FederalistPapers(data.Dataset):
     def __init__(self, articles=[0,1]):
         with open(PATH, 'rb') as fid:
             data = pickle.load(fid)
-        article_list = data['articles'][0:2]
+        article_list = data['articles'][0:10]
         self.word2id, self.id2word = get_vocabulary(article_list)        
         contexts, centers = get_training_data(article_list, self.word2id)
 
